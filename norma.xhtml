@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml" xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html" xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:c="http://java.sun.com/jsp/jstl/core" xmlns:p="http://primefaces.org/ui"
+	template="/pages/layout/crud_template.xhtml">
+
+	<h:head>
+		<title>Normas</title>
+	</h:head>
+
+	<ui:define name="titulo_do_conteudo">
+		Normas
+	</ui:define>
+	
+	<ui:define name="conteudo">
+		<h:form id="formNorma" prependId="false">
+			<p:panel id="consulta" header="Consulta" rendered="#{normaBean.browsing}">
+				<p:focus for="descricaoConsulta" />
+				<div class="campo">
+					<p:outputLabel value="Descrição" for="descricaoConsulta" />
+					<p:inputText id="descricaoConsulta" value="#{normaBean.descricaoNorma}" size="50" />
+				</div>
+
+				<div class="campo">
+					<p:commandLink id="linkConsultar" styleClass="fa fa-search" action="#{normaBean.consultar}" update="listagem" />
+				</div>
+
+				<br clear="all" />
+
+				<div class="campo">
+					<p:commandButton icon="ui-icon-plus" value="Incluir" action="#{normaBean.incluir}" update=":formNorma" />
+				</div>
+				
+				<p:defaultCommand target="linkConsultar"></p:defaultCommand>				
+				<br clear="all" />
+			</p:panel>
+			
+			
+
+			<br clear="all" />
+
+			<p:panel id="listagem" rendered="#{normaBean.browsing}">
+				<p:dataTable value="#{normaBean.listaNormas}" var="norma" emptyMessage="Dados não encontrados!">
+					<p:column headerText="Id" width="5">
+						<h:outputText id="id" value="#{norma.id}" />
+					</p:column>
+
+					<p:column headerText="Descricao" width="100">
+						<h:outputText value="#{norma.descricao}" />
+					</p:column>
+					
+					<p:column headerText="Ações" width="30">
+						<p:commandLink action="#{normaBean.edit(norma)}" icon="ui-icon-disk" value="Alterar" update=":formNorma">
+<!-- 							<f:setPropertyActionListener target="#{regiaoMetropolitanaBean.regiaoMetropolitana}" value="#{regiao}" /> -->
+						</p:commandLink>
+					</p:column>
+				</p:dataTable>
+			</p:panel>
+
+			<!-- Cadastro da Norma -->
+			<p:panel id="cadastro" header="Cadastro" rendered="#{normaBean.inserting or normaBean.updating}">
+				<p:fieldset legend="Dados da Norma ">
+					<div class="campo">
+						<p:outputLabel value="Id" for="idCadastro" />
+						<p:inputText id="idCadastro" value="#{normaBean.norma.id}" size="10" readonly="true" />
+					</div>
+
+					<div class="campo">
+						<p:outputLabel value="Descrição" for="Descricao" />
+						<p:inputText id="Descricao" value="#{normaBean.norma.descricao}" size="50" required="true" />
+					</div>
+
+					<br clear="all" />
+				</p:fieldset>
+
+				<br clear="all" />
+
+				<p:commandButton id="btnSalvar" action="#{normaBean.salvar}" value="Salvar" icon="ui-icon-disk"
+					update=":formNorma" />
+				<p:commandButton id="btnCancelar" action="#{normaBean.cancelar()}" value="Cancelar" icon="ui-icon-cancel"
+					update=":formNorma" immediate="true" />
+
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>
