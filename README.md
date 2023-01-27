@@ -1,4 +1,4 @@
-# CRUD_Leis_Portarias_PRICIA_FORENSE
+# CRUD_Leis_Portarias_PERICIA_FORENSE
 
 Sistema para incrementar o grande Sistema pericial galileu.
 
