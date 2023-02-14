@@ -12,90 +12,101 @@
 		Leis e Portarias
 	</ui:define>
 
-
 	<ui:define name="conteudo">
 	
 	
-		<h:form id="formFormularioDocumentos" prependId="false" style="{height: 100%;}">
+		<p:panel rendered="#{!direitosUtil.isLogado()}" id="reload">
+			<script type="text/javascript" src="${ctx}/script/reloadLeiPortaria.js" />		
+		</p:panel>	
+		
+	
+
+
+		<h:form id="formFormularioDocumentos" prependId="false" style="{height: 100%;}" >
 		
 		<!-- tela para consultas -->
-		<p:panel id="consulta" header="Consulta" rendered="#{leiPortariaBean.browsing and !leiPortariaBean.inserting and !leiPortariaBean.updating}">
 		
-			<div>
-				<div class="campo">
-					<p:outputLabel value="Norma" for="normas" />
-					<p:selectOneMenu id="normas" value="#{leiPortariaBean.leiPortaria.norma}"  converter="normaConverter" filter="true" filterMatchMode="contains"  panelStyle="width:148px">
-						<f:selectItem itemLabel="[selecione]" noSelectionOption="true" />
-						<f:selectItems value="#{leiPortariaBean.todasNormas}" var="normas" itemLabel="#{normas.descricao}" itemValue="#{normas}" />
-						<p:ajax  listener="#{leiPortariaBean.atualizarCampoAno()}" update=":consulta"/>  <!-- fazer esse metodo verificando como é feito em funcionario -->
-				</p:selectOneMenu>
-				</div>
-				
-				<p:outputPanel id="panelAno" rendered="#{leiPortariaBean.leiPortaria.norma != null}">
+		<p:panel id="consulta" header="Consulta" rendered="#{leiPortariaBean.browsing and reload == execute}" >
+			<div class="ui-g">
+				<div class="ui-g-12 ui-md-12">
 					<div class="campo">
-					<p:outputLabel value="Ano" for="anoId" />
-					<p:selectOneMenu   id="anoId" value="#{leiPortariaBean.leiPortaria.ano}"   filter="true" filterMatchMode="contains"  panelStyle="width:148px">
-						<f:selectItem itemLabel="[selecione]" noSelectionOption="true" />
-						<f:selectItems  value="#{leiPortariaBean.listaAno}" var = "anos" itemLabel="#{anos}" itemValue="#{anos}"   />
-					 <p:ajax listener="#{leiPortariaBean.atualizarCampoNumero()}" update=":consulta"/>
-					</p:selectOneMenu>
-					</div> 
-				</p:outputPanel>
-				
-				<p:outputPanel id="panelNumero" rendered="#{leiPortariaBean.leiPortaria.ano != null}">
-				<div class="campo">
-					<p:outputLabel value="Numero" for="numeroId" />
-					<p:selectOneMenu id="numeroId" value="#{leiPortariaBean.leiPortaria.numero}" size="50"  filter="true" filterMatchMode="contains"  panelStyle="width:148px">
-						<f:selectItem itemLabel="[selecione]" noSelectionOption="true"  />
-						<f:selectItems  value="#{leiPortariaBean.listaNumero}" var = "numeros" itemLabel="#{numeros}" itemValue="#{numeros}"   />
-					</p:selectOneMenu>
-				</div>
-				</p:outputPanel>
-				<div class="campo">
-				<p:outputLabel value="Descrição" for="descricaoConsulta" />
-				<p:inputText id="descricaoConsulta" value="#{leiPortariaBean.leiPortaria.descricao}" size="50"/>
-                          
-				</div>
-				
-				<p:outputPanel  id="dataBusca">
-				
-				<div class="campo">
-					   <p:selectOneRadio id="console" value="#{leiPortariaBean.descricaoSelecionada}">
-			           <f:selectItem itemLabel="Diário Oficial" itemValue="dataDiarioOficial"  />
-			           <f:selectItem itemLabel="Data Normativa" itemValue="dataNormativa"/>			           
-        			</p:selectOneRadio>
-				</div>
-				<div class="campo">
-							<p:outputLabel value="Início" for="dataInicio" />
-								<p:calendar id="dataInicio"	value="#{leiPortariaBean.leiPortaria.dataInicio}"
-									pattern="dd/MM/yyyy" mask="99/99/9999" size="15"/>
-						</div>	
-					
-					<div class="campo">
-							<p:outputLabel value="Fim" for="dataFim" />
-								<p:calendar id="dataFim" value="#{leiPortariaBean.leiPortaria.dataFim}"
-								pattern="dd/MM/yyyy" mask="99/99/9999"  size="15"/>
+						<p:outputLabel value="Norma" for="normas" />
+						<p:selectOneMenu id="normas" value="#{leiPortariaBean.leiPortaria.norma}" converter="normaConverter" filter="true" filterMatchMode="contains" panelStyle="width:140px" >
+							<f:selectItem itemLabel="[selecione]" noSelectionOption="true"  itemValue="#{null}"/>
+							<f:selectItems value="#{leiPortariaBean.todasNormas}" var="normas" itemLabel="#{normas.descricao}" itemValue="#{normas}" />
+							<p:ajax  listener="#{leiPortariaBean.atualizarCampoAno()}"  update="anoId"/>  <!-- fazer esse metodo verificando como é feito em funcionario -->
+						</p:selectOneMenu>
 					</div>
 					
+					<p:outputPanel id="panelAno" >
+						<div class="campo">
+							<p:outputLabel value="Ano" for="anoId" />
+							<p:selectOneMenu  id="anoId" value="#{leiPortariaBean.leiPortaria.ano}" filter="true" filterMatchMode="contains"  panelStyle="width:148px" >
+								<f:selectItem itemLabel="[selecione]" noSelectionOption="true" />
+								<f:selectItems  value="#{leiPortariaBean.listaAno}" var = "anos" itemLabel="#{anos}" itemValue="#{anos}"   />
+							 	<p:ajax listener="#{leiPortariaBean.atualizarCampoNumero()}" update="numeroId" />
+							</p:selectOneMenu>
+						</div> 
+					</p:outputPanel> 
 					
-			</p:outputPanel>
-				
-				<p:outputPanel id="panelPalavraChave" >
+	 				<p:outputPanel id="panelNumero"  > 
+						<div class="campo">
+							<p:outputLabel value="Numero" for="numeroId" />
+							<p:selectOneMenu id="numeroId" value="#{leiPortariaBean.leiPortaria.numero}" size="50"  filter="true" filterMatchMode="contains"  panelStyle="width:148px">
+								<f:selectItem itemLabel="[selecione]" noSelectionOption="true"  />
+								<f:selectItems  value="#{leiPortariaBean.listaNumero}" var = "numeros" itemLabel="#{numeros}" itemValue="#{numeros}"   />
+							</p:selectOneMenu>
+						</div>
+					</p:outputPanel> 
+				</div>
+				<div class="ui-g-12 ui-md-12">
+					<p:outputPanel id="panelPalavraChave" >
+					<div class="campo">
+						<p:outputLabel value="Descrição" for="descricaoConsulta" />
+						<p:inputText id="descricaoConsulta" value="#{leiPortariaBean.leiPortaria.descricao}" size="55"/>          
+					</div>
+					
+					<br clear="all" />
+					
 					<div class="campo">
 						<p:outputLabel for="consultaPalavraChave" value="Palavra Chave" />
-						<p:chips id="consultaPalavraChave" value="#{leiPortariaBean.leiPortaria.listaPalavraChave}"  size="25" />
+						<p:chips id="consultaPalavraChave" value="#{leiPortariaBean.leiPortaria.listaPalavraChave}" />
 					</div>
-				</p:outputPanel>
-				
+						
+					</p:outputPanel>
 				</div>
 				
+				<div class="ui-g-12">
+					<p:outputPanel  id="dataBusca">
+						<div class="campo">
+							<p:outputLabel value="Início" for="dataInicio" />
+							<p:calendar id="dataInicio"	value="#{leiPortariaBean.leiPortaria.dataInicio}" pattern="dd/MM/yyyy" mask="99/99/9999" size="15"/>
+						</div>	
+							
+						<div class="campo">
+							<p:outputLabel value="Fim" for="dataFim" />
+							<p:calendar id="dataFim" value="#{leiPortariaBean.leiPortaria.dataFim}"	pattern="dd/MM/yyyy" mask="99/99/9999"  size="15"/>
+						</div>
+						<br clear="all" />
+						<div class="campo">
+							   <p:selectOneRadio id="console" value="#{leiPortariaBean.descricaoSelecionada}">
+					           <f:selectItem itemLabel="Diário Oficial" itemValue="dataDiarioOficial"  />
+					           <f:selectItem itemLabel="Data Normativa" itemValue="dataNormativa"/>			           
+		        			</p:selectOneRadio>
+						</div>
+	
+					</p:outputPanel>
+			
+				</div>
+			</div>
+			<br clear="all" />
+			<br clear="all" />
 			<br clear="all" />
 				
 				
 			<div class="campo">
-					<p:commandButton icon="ui-icon-plus" value="Incluir" action="#{leiPortariaBean.incluir()}" update=":formFormularioDocumentos"  rendered="#{direitosUtil.isPossuiDireito('Menu Ferramentas:LeiPortaria:incluir') or direitosUtil.isPossuiDireito('Administrador')}"/> 
-					<p:commandButton id="linkConsultar" icon="ui-icon-plus" value="Buscar" action="#{leiPortariaBean.consultar()}" update=":formFormularioDocumentos"/> 
-					
+				<p:commandButton icon="ui-icon-plus" value="Incluir" action="#{leiPortariaBean.incluir()}" update=":formFormularioDocumentos"  rendered="#{direitosUtil.isPossuiDireito('Menu Ferramentas:LeiPortaria:incluir') or direitosUtil.isPossuiDireito('Administrador')}"/> 
+				<p:commandButton id="linkConsultar" icon="ui-icon-plus" value="Buscar" action="#{leiPortariaBean.consultar()}" update=":formFormularioDocumentos"/> 
 			</div>			
 			<p:defaultCommand target="linkConsultar"></p:defaultCommand>				
 			<br clear="all" />
@@ -103,9 +114,9 @@
 			<!-- trazer as consultas em telas -->
 			<p:dataTable value="#{leiPortariaBean.leiPortariaModel}" var="varLeiPort" emptyMessage="Dados não encontrados!" resizableColumns="false" paginator="true"
 					rows="30" paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-					rowsPerPageTemplate="5,10,15" selectionMode="single" lazy="true">
+					rowsPerPageTemplate="5,10,15" selectionMode="single" lazy="true" >
 					
-					<p:column headerText="Id" width="20">
+					<p:column headerText="Id" width="10">
 						<h:outputText id="id" value="#{varLeiPort.id}" />
 					</p:column>
 
@@ -113,36 +124,41 @@
 						<h:outputText value="#{varLeiPort.norma.descricao}" />
 					</p:column>
 
-					<p:column headerText="Número" width="30">
+					<p:column headerText="Número" width="20">
 						<h:outputText value="#{varLeiPort.numero}" />
 					</p:column>
 
-					<p:column headerText="Ano" width="30">
+					<p:column headerText="Ano" width="20">
 						<h:outputText value="#{varLeiPort.ano}" />
-					</p:column>
-					
-					<p:column headerText="Data Normativa" width="30">
-						<h:outputText value="#{varLeiPort.dataNormativa}" converter="dataConverter"/>
 					</p:column>
 					
 					<p:column headerText="Data Diário Oficial" width="30">
 						<h:outputText value="#{varLeiPort.dataDiarioOficial}" converter="dataConverter" />
 					</p:column>
 					
+					<p:column headerText="Data Normativa" width="30">
+						<h:outputText value="#{varLeiPort.dataNormativa}" converter="dataConverter"/>
+					</p:column>
+					
+					
 					<p:column headerText="Descrição" width="180">
 						<h:outputText value="#{varLeiPort.descricao}" />
 					</p:column>
-					<!-- <p:column headerText="Anexo" width="60">
-						<h:outputText value="#{varLeiPort.arquivo}" />
-					</p:column> -->
-
-					<p:column headerText="Ações" width="50">
+					
+					<p:column headerText="Situação" width="20">
+						<h:outputText value="#{varLeiPort.status}" />
+					</p:column>
+					<p:column headerText="Revogado por" width="35">
+						<h:outputText value="#{varLeiPort.responsavel}" />
+					</p:column>
+					
+				
+					<p:column headerText="Ações" width="20">
 						<p:commandLink action="#{leiPortariaBean.editar(varLeiPort)}"  title="Alterar"  update="formFormularioDocumentos"  rendered="#{direitosUtil.isPossuiDireito('Menu Ferramentas:LeiPortaria:incluir') or direitosUtil.isPossuiDireito('Administrador')}">
 							<span class="fa fa-edit fa-fw" style="color: black !important; font-size: 20px !important;" />
 						</p:commandLink>
 						<p:commandLink id="imprimirLeiPortaria" title="pdf" ajax="false" rendered="#{varLeiPort.arquivo != null}" onclick="PrimeFaces.monitorDownload(start,stop);">
 							<p:fileDownload value="#{leiPortariaBean.downloadArquivo(varLeiPort)}"/>
-							<!-- <p:fileDownload value="#{gerenciaItensAuxiliaresBean.downloadArquivo(declaracao.declaracaoAssinada.arquivo,declaracao.declaracaoAssinada.nomeArquivo)}"/> -->
 							<span class="fa fa-file-pdf fa-fw fa-lg i-info"/>
 						</p:commandLink>
 						
@@ -151,69 +167,108 @@
 				
 				</p:panel>
 				
-			
+	
 			
 			<!-- cadastro dos dados -->
 		
-			<p:panel id="cadastro" header="Cadastro de Formulario " rendered="#{leiPortariaBean.updating or leiPortariaBean.inserting}">
+			<p:fieldset id="cadastroLei" header="Cadastro " rendered="#{leiPortariaBean.updating or leiPortariaBean.inserting}">
+			
 		
-					<div class="campo">
+		<p:panel>
+				<div class="campo">
 					<p:outputLabel value="Norma" for="normaId" />
-					<p:selectOneMenu id="normaId" value="#{leiPortariaBean.leiPortaria.norma}" converter="normaConverter" filter="true" filterMatchMode="contains"  panelStyle="width:148px">
+					<p:selectOneMenu  id="normaId"  value="#{leiPortariaBean.leiPortaria.norma}"  converter="normaConverter" 
+					filter="true" filterMatchMode="contains"  style="width:135px;" panelStyle="width:135px" required="true">
 						<f:selectItem itemLabel="[selecione]" noSelectionOption="true" />
-						<f:selectItems value="#{leiPortariaBean.todasNormas}" var="normas" itemLabel="#{normas.descricao}" itemValue="#{normas}" />
+						<f:selectItems value="#{leiPortariaBean.todasNormas}" var="normas" itemLabel="#{normas.descricao}" itemValue="#{normas}" />	
+									
 					</p:selectOneMenu>
 				</div>
-						
-				<div class="campo">
+				
+				<div class="campo">						
 						<p:outputLabel value="Ano" for="anoCadastro" />
-						<p:inputText id="anoCadastro" value="#{leiPortariaBean.leiPortaria.ano}" size="30" required="true" />				
+						<p:inputText id="anoCadastro" value="#{leiPortariaBean.leiPortaria.ano}" size="20" required="true"  maxlength="4"  />	
+															
 				</div>
 				
 				<div class="campo">
 						<p:outputLabel value="Numero" for="numeroCadastro" />
-						<p:inputText id="numeroCadastro" value="#{leiPortariaBean.leiPortaria.numero}" size="30" required="true" />				
+						<p:inputText id="numeroCadastro" value="#{leiPortariaBean.leiPortaria.numero}" size="20" required="true" />	
+							
 				</div>
-				
-				<div class="campo">
-						<p:outputLabel value="Descrição" for="descricaoCadastro" />
-						<p:inputText id="descricaoCadastro" value="#{leiPortariaBean.leiPortaria.descricao}" size="30" required="true" />				
-				</div>
+				<br clear="all" />
 				<div class="campo" > 
  					<p:outputLabel value="Data Normativa " for="normativa" /> 
-					<p:calendar id = "normativa" value="#{leiPortariaBean.leiPortaria.dataNormativa}"  pattern="dd/MM/yyyy" mask="99/99/9999"  size="15"/> 
+					<p:calendar id = "normativa" value="#{leiPortariaBean.leiPortaria.dataNormativa}" pattern="dd/MM/yyyy" mask="99/99/9999"  size="23"/> 
+					
 				</div>
 				
 				<div class="campo"> 
-							<p:outputLabel value="Data Diário oficial" for="diarioOficial" /> 
-								<p:calendar id="diarioOficial" value="#{leiPortariaBean.leiPortaria.dataDiarioOficial}" 
- 								pattern="dd/MM/yyyy" mask="99/99/9999"  size="15"/> 
+					<p:outputLabel value="Data Diário oficial" for="diarioOficial" /> 
+					<p:calendar id="diarioOficial" value="#{leiPortariaBean.leiPortaria.dataDiarioOficial}" pattern="dd/MM/yyyy" mask="99/99/9999"  size="23"/> 
+ 							
  				</div> 
- 				
+ 				<br clear="all" />
  				<div class="campo"> 
-							<p:outputLabel value="Palavra chave" for="palavraChave" /> 
-							<p:chips id="palavraChave" value="#{leiPortariaBean.leiPortaria.palavraChave}" required="true"/>							
-					 								
- 				</div> 				
- 				<p:outputPanel id="panelPDF">
-		 				<div class="campo">
-		 												
-									<p:fileUpload id="arquivo" fileUploadListener="#{leiPortariaBean.adicionarArquivo}" mode="advanced" dragDropSupport="true"
-										update="panelPDF"  label="Anexar Arquivo " allowTypes="/(\.|\/)(pdf)$/" accept="application/pdf"
-										auto="true" invalidSizeMessage="O arquivo selecionado ultrapassa o limite para envio." />
+					<p:outputLabel value="Palavra chave" for="palavraChave" /> 
+					<p:chips id="palavraChave" value="#{leiPortariaBean.leiPortaria.listaPalavraChave}" unique="true" max="8" />							
+					 		
+ 				</div> 	
+			
+				<br clear="all"/>
+				
+				<div class="campo">
+					<p:outputLabel value="Descrição" for="descricaoCadastro"/>
+					<p:inputTextarea id="descricaoCadastro" value="#{leiPortariaBean.leiPortaria.descricao}" rows="3" cols="55" required="true" />	
+								
+				</div>
+				<br clear="all"/>
+			</p:panel>
+				
+			<p:panel id="respStatus">
+				<div class="campo">
+					<p:outputLabel value="Situação" for="statusLei" />
+					<p:selectOneMenu id="statusLei" value="#{leiPortariaBean.leiPortaria.status}" required="true"  panelStyle="width:148px" >					
+	                    <f:selectItem itemLabel="[Selecione]" noSelectionOption="true"/>
+	                    <f:selectItem itemLabel="Vigente" itemValue="Vigente" />
+	                    <f:selectItem itemLabel="Revogado" itemValue="Revogado"/>
+						<p:ajax  update="respStatus"/> 
+	                                             
+                	</p:selectOneMenu>	
+ 					
+				</div>
+				<br clear="all" />
+				<div class="campo">
+					<p:outputPanel id="responsavel"  rendered="#{leiPortariaBean.leiPortaria.status == 'Revogado'}"  >
+						<p:outputLabel for="resp" value="Revogado por" />
+						<p:inputText id="resp" value="#{leiPortariaBean.leiPortaria.responsavel}" size="55"  />
+					</p:outputPanel>				
+				</div>
+				
+					<br clear="all"/>
+				</p:panel>
+			
+ 				<p:outputPanel id="panelPDF" >
+		 				<div class="campo">		 												
+							<p:fileUpload id="arquivo" fileUploadListener="#{leiPortariaBean.adicionarArquivo}" mode="advanced" dragDropSupport="true"
+							update="panelPDF"  label="Anexar Arquivo " allowTypes="/(\.|\/)(pdf)$/" accept="application/pdf"
+							auto="true" invalidSizeMessage="O arquivo selecionado ultrapassa o limite para envio." />
 
-		 				</div>
-		 				<p:outputLabel value="#{leiPortariaBean.nomeArquivo}"  >
+		 				</div>	
+		 				<p:outputLabel value="#{leiPortariaBean.nomeArquivo}"  />
 		 				
-		 				</p:outputLabel>
+		 				
  				</p:outputPanel>
 
 					<p:commandButton id="btnSalvar" action="#{leiPortariaBean.salvar}" value="Salvar" icon="ui-icon-disk"
 					update=":formFormularioDocumentos" />
 				<p:commandButton id="btnCancelar" action="#{leiPortariaBean.cancelar}" value="Cancelar" icon="ui-icon-cancel"
 					update=":formFormularioDocumentos" immediate="true" />			
+	
 			
-			</p:panel>
+			</p:fieldset>
+		
+			
 
 		</h:form>
 	</ui:define>

@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -47,8 +48,8 @@ public class LeiPortariaBean extends AbstractBean implements Serializable {
 	private List<LeiPortaria> listaLeisPortarias;
 	private List<Integer> listaAno;
 	private List<Integer> listaNumero;
-
-	
+	private List<String> listStatus;
+	private String statusSelecionado;
 	private Norma normaSelecionada;
 	private Integer anoSelecionado;
 	private Integer numeroSelecionado;
@@ -56,9 +57,7 @@ public class LeiPortariaBean extends AbstractBean implements Serializable {
 	private Date dataTerminoSelecionada;
 	private List<String> listaPalavraChaveSelecionada;
 	private String descricaoSelecionada;
-	
-	
-	
+
 	@ManagedProperty("#{normaDao}")
 	private NormaDao normaDao;
 
@@ -68,66 +67,102 @@ public class LeiPortariaBean extends AbstractBean implements Serializable {
 	@PostConstruct
 	public void initBean() {
 		setBrowsing(true);
-		if(leiPortaria == null) {
-			listaAno =  new ArrayList<Integer>();
+		if (leiPortaria == null) {
+			listaAno = new ArrayList<Integer>();
 			leiPortaria = new LeiPortaria();
 			leiPortaria.setListaPalavraChave(new ArrayList<String>());
 			descricaoSelecionada = "dataDiarioOficial";
+			redireciona();
+			
+			
 		}
 
 	}
+	
+	 public String redireciona() {
+	        return "www.google.com.br?faces-redirect=true";
+	    }
 
 	public void incluir() {
 		leiPortaria = new LeiPortaria();
 		leiPortaria.setListaPalavraChave(new ArrayList<String>());
 		setInserting(true);
-		
 
 	}
 
-	/*
-	 * public void edit(LeiPortaria leiPortaria) { this.leiPortaria = leiPortaria;
-	 * setUpdating(true); setBrowsing(false); setInserting(false); }
-	 */
-	
 	public void editar(LeiPortaria leiPortaria) {
 		this.leiPortaria = leiPortaria;
 		setUpdating(true);
+		leiPortaria.setListaPalavraChave(new ArrayList<String>());
+		if (leiPortaria.getPalavraChave() != null) {
+
+			leiPortaria.setListaPalavraChave(
+					new ArrayList<String>(Arrays.asList(leiPortaria.getPalavraChave().split(" "))));
+		}
 	}
 
-	
 	public void consultar() {
-		leiPortariaModel =  new LazyLeiPortariaDataModel(leiPortariaDao.buscarPorLeiPortaria(leiPortaria, descricaoSelecionada));
-		
+		leiPortariaModel = new LazyLeiPortariaDataModel(
+				leiPortariaDao.buscarPorLeiPortaria(leiPortaria, descricaoSelecionada));
 
 	}
 
 	public void cancelar() {
 		setBrowsing(true);
+		limparCampos();
+		consultar();
+
+	}
+
+	public void limparCampos() {
+		setBrowsing(true);
+		leiPortaria = new LeiPortaria();
 
 	}
 
 	public void salvar() {
 		try {
 
+			if (leiPortaria.getAno() < 2000 || leiPortaria.getAno() > 2099) {
+				FacesUtils.addErrorMessage("O valor do Ano não é válido! Por favor valores entre 2000 e 2099");
+				return;
+			}
+
+			if (leiPortaria.getListaPalavraChave() != null) {
+				leiPortaria.setPalavraChave("");
+				if (!leiPortaria.getListaPalavraChave().isEmpty()) {
+					for (String p : leiPortaria.getListaPalavraChave()) {
+						String palavra = p.trim();
+						palavra = palavra.replace("[", "");
+						palavra = palavra.replace("]", "");
+						palavra = palavra.replace(",", "");
+						if (leiPortaria.getPalavraChave().isEmpty()) {
+							leiPortaria.setPalavraChave(palavra);
+						} else {
+							leiPortaria.setPalavraChave(leiPortaria.getPalavraChave() + " " + palavra);
+						}
+					}
+				}
+			}
+
 			if (isUpdating()) {
+				if (leiPortaria.getAno() < 2000 || leiPortaria.getAno() > 2099) {
+					FacesUtils.addErrorMessage("O valor do Ano não é válido! Por favor valores entre 2000 e 2099");				
+					return;
+				}
 
 				leiPortaria.setUsuario(getUsuarioAutenticado());
 				leiPortariaDao.update(leiPortaria);
 			} else if (isInserting()) {
 				leiPortaria.setDataInclusao(new Date());
 				leiPortaria.setUsuario(getUsuarioAutenticado());
-//				leiPortaria.setDescricao(norma.getDescricao());
-//				leiPortaria.setAno(leiPortaria.getAno());
-//				leiPortaria.setNumero(leiPortaria.getNumero());
-//				leiPortaria.setNorma(leiPortaria.getNorma());
-//				leiPortaria.setDataDiarioOficial(leiPortaria.getDataDiarioOficial());
-//				leiPortaria.setDataNormativa(leiPortaria.getDataNormativa());
+
 				leiPortaria = leiPortariaDao.save(leiPortaria);
 
 			}
 			consultar();
 			setBrowsing(true);
+			limparCampos();
 			FacesUtils.addInfoMessage("Os dados foram salvos com sucesso!");
 
 		} catch (Exception e) {
@@ -138,9 +173,11 @@ public class LeiPortariaBean extends AbstractBean implements Serializable {
 
 	public StreamedContent downloadArquivo(LeiPortaria leiPortaria) {
 		InputStream input = new ByteArrayInputStream(leiPortaria.getArquivo());
-		return new DefaultStreamedContent(input, StrUtil.CONTENT_TYPE_PDF_FILE, leiPortaria.getNorma().getDescricao()+ "_" + leiPortaria.getNumero()+ "_" +leiPortaria.getAno());
+		return new DefaultStreamedContent(input, StrUtil.CONTENT_TYPE_OPENDOCUMENT_FILE,
+				leiPortaria.getNorma().getDescricao() + "_" + leiPortaria.getNumero() + "_" + leiPortaria.getAno()
+						+ ".pdf");
 	}
-	
+
 	public void adicionarArquivo(FileUploadEvent file) {
 		if (file.getFile().getSize() > 0 && file.getFile().getContents().length > 0) {
 
@@ -156,10 +193,6 @@ public class LeiPortariaBean extends AbstractBean implements Serializable {
 		this.anexoUpload.getContents();
 	}
 
-	
-	
-	
-	
 	private class LazyLeiPortariaDataModel extends LazyDataModel<LeiPortaria> {
 		private static final long serialVersionUID = 1L;
 
@@ -190,7 +223,8 @@ public class LeiPortariaBean extends AbstractBean implements Serializable {
 		}
 
 		@Override
-		public List<LeiPortaria> load(int first, int pageSize, String sortField, SortOrder sortOrder, Map<String, Object> filters) {
+		public List<LeiPortaria> load(int first, int pageSize, String sortField, SortOrder sortOrder,
+				Map<String, Object> filters) {
 			List<LeiPortaria> data = new ArrayList<LeiPortaria>();
 
 			// filter
@@ -243,7 +277,7 @@ public class LeiPortariaBean extends AbstractBean implements Serializable {
 		}
 
 	}
-	
+
 	private class LazySorter implements Comparator<LeiPortaria> {
 
 		private String sortField;
@@ -269,10 +303,7 @@ public class LeiPortariaBean extends AbstractBean implements Serializable {
 			}
 		}
 	}
-	
-	
-	
-	
+
 	public List<Norma> getTodasNormas() {
 		return normaDao.buscarTodosAtivos();
 	}
@@ -282,14 +313,25 @@ public class LeiPortariaBean extends AbstractBean implements Serializable {
 	}
 
 	public void atualizarCampoAno() {
-		if (leiPortaria.getNorma() != null) {
+		if (leiPortaria.getNorma() != null ) {
 			setListaAno(leiPortariaDao.buscarTodosAnosPorNorma(leiPortaria.getNorma()));
+		}else {
+			setListaAno(null);
+			setListaNumero(null);
 		}
 	}
 
 	public void atualizarCampoNumero() {
-		if (leiPortaria.getNorma() != null) {
+		if (leiPortaria.getNorma() != null && leiPortaria.getAno() != null ) {
 			setListaNumero(leiPortariaDao.buscarTodosNumeroPorNorma(leiPortaria));
+		}else {
+			setListaNumero(null);
+		}
+	}
+
+	public void buscarPorStatus() {
+		if (leiPortaria.getStatus() != null) {
+			setListStatus(leiPortariaDao.buscarPorStatus(leiPortaria));
 		}
 	}
 
@@ -400,12 +442,12 @@ public class LeiPortariaBean extends AbstractBean implements Serializable {
 
 	public String getNomeArquivo() {
 		return nomeArquivo;
-		
+
 	}
 
 	public void setNomeArquivo(String nomeArquivo) {
 		this.nomeArquivo = nomeArquivo;
-		
+
 	}
 
 	public Norma getNormaSelecionada() {
@@ -462,6 +504,16 @@ public class LeiPortariaBean extends AbstractBean implements Serializable {
 
 	public void setDescricaoSelecionada(String descricaoSelecionada) {
 		this.descricaoSelecionada = descricaoSelecionada;
+	}
+
+	public List<String> getListStatus() {
+		return listStatus;
+
+	}
+
+	public void setListStatus(List<String> listStatus) {
+		this.listStatus = listStatus;
+
 	}
 
 }
